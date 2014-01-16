@@ -1,49 +1,44 @@
-#include <cstring>
-#include <iostream>
+#include<iostream>
 using namespace std;
-struct zapis{
-        string ime,prezime;
+
+struct tdatum{
+         int dan,mjesec, godina;
+};
+struct tpacijent{
+        char ime[8];
+        char prezime[8];
+        tdatum datum;
         char spol;
-        int d,m,g;
         int ai,bi,ci,di,ei;
 };
-
-struct tqu{
-        zapis val;
-        tqu *next;
+struct telement{
+        tpacijent pacijent;
+        telement *sljedeci;
 };
-
-struct queue{
-        tqu *front,*rear;
+struct tred{
+        telement *front ,*rear;
 };
+typedef tred queue;
+typedef telement* element;
 
-queue *InitQ(queue *Q){
-        Q = new queue;
-        tqu *novi = new tqu;
-        novi->next = NULL;
-        Q->front = novi;
-        Q->rear = novi;
-        return Q;
+tpacijent frontQ(queue *Q){
+        return Q->front->sljedeci->pacijent;
 }
-
+void enqueueQ(tpacijent x, queue *Q){
+    Q->rear->sljedeci=new telement;
+        Q->rear=Q->rear->sljedeci;
+        Q->rear->sljedeci=NULL;
+        Q->rear->pacijent=x;
+}
+void dequeueQ(queue *Q){
+        element pom=Q->front;
+        Q->front=pom->sljedeci;
+        delete pom;
+}
+void initQ(queue *Q){
+        Q->front=new telement;
+        Q->rear=Q->front;
+}
 bool IsEmptyQ(queue *Q){
-        return Q->rear==Q->front;
-}
-
-zapis FrontQ(queue *Q){
-        return Q->front->next->val;
-}
-
-void EnQueueQ(zapis x,queue *Q){
-        tqu *novi = new tqu;
-        novi->val = x;
-        novi->next = NULL;
-        Q->rear->next = novi;
-        Q->rear = novi;
-}
-
-void DeQueueQ(queue *Q){
-        tqu *del = Q->front;
-        Q->front = Q->front->next;
-        delete del;
+        return (Q->rear==Q->front)?  1:0;
 }
