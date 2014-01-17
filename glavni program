@@ -105,6 +105,21 @@ void brisanje() {
 }
 int br_pom, br_pom2;
 
+void pusti_uputnicu_ili_recept(queue *Q, queue *brzi){
+        if(IsEmptyQ(Q)){
+                return;
+        }
+        tpacijent tekuci=frontQ(Q);
+        dequeueQ(Q);
+        pusti_uputnicu_ili_recept(Q,brzi);
+        
+        if(tekuci.di==3||tekuci.di==4)
+                {
+                        enqueueQ(tekuci,brzi);
+                        br_el--;
+                }
+        else enqueueQ(tekuci,Q);          
+
 void red_brzih_usluga(queue *Q){
     cout<<"U cekaonici:\n---------"<<endl;
     ispis_svih(Q);
