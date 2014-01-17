@@ -1,45 +1,46 @@
 #include <iostream>
-#include <cstring>
+
 using namespace std;
 
-struct zapis{
-        string ime,prezime;
-        char spol;
-        int d,m,g;
-        int ai,bi,ci,di,ei;
+struct osoba {
+    int ai,bi,ci,di,ei;
+    int datum;
+    char ime[25],prezime[30],spol[1];
+    osoba*sljedeci;
 };
 
-struct queue{
-        zapis val[10000];
-        int front,rear;
+int AddOne(int n) {
+    return((n+1)%10000);
+}
+
+struct tred {
+    osoba*pacijent[10000];
+    int front,rear;
 };
 
-int AddOne(int n){
-        return ((n+1)%10000);
+osoba*FrontQ(tred*red) {
+    return red->pacijent[red->front];
 }
 
-queue *InitQ(queue *Q){
-        Q = new queue;
-        Q->front = 0;
-        Q->rear = 9999;
-        return Q;
+void EnQueueQ (osoba*pacijent, tred *red) {
+    if (AddOne(AddOne(red->rear))==(red->front))
+        cout<<"Red je pun."<<endl;
+    else {
+        red->rear=AddOne(red->rear);
+        red->pacijent[red->rear]=pacijent;
+    }
 }
 
-bool IsEmptyQ(queue *Q){
-        if(AddOne(Q->rear)==Q->front) return true;
-        return false;
+int IsEmptyQ(tred*red) {
+    if(AddOne(red->rear)==red->front)return 1;
+    return 0;
 }
 
-zapis FrontQ(queue *Q){
-        return Q->val[Q->front];
+void DeQueueQ(tred*red) {
+    red->front++;
 }
 
-void EnQueueQ(zapis x,queue *Q){
-        Q->rear = AddOne(Q->rear);
-        Q->val[Q->rear] = x;
+void InitQ(tred*red) {
+    red->front=0;
+    red->rear=9999;
 }
-
-void DeQueueQ(queue *Q){
-        Q->front = AddOne(Q->front);
-}
- 
