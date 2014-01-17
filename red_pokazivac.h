@@ -1,44 +1,45 @@
-#include<iostream>
-using namespace std;
+struct osoba {
+    int ai,bi,ci,di,ei;
+    int datum;
+    char ime[25],prezime[30],spol[1];
+    osoba*sljedeci;
+};
 
-struct tdatum{
-         int dan,mjesec, godina;
+struct tred {
+    osoba* front, *rear;
 };
-struct tpacijent{
-        char ime[8];
-        char prezime[8];
-        tdatum datum;
-        char spol;
-        int ai,bi,ci,di,ei;
-};
-struct telement{
-        tpacijent pacijent;
-        telement *sljedeci;
-};
-struct tred{
-        telement *front ,*rear;
-};
-typedef tred queue;
-typedef telement* element;
 
-tpacijent frontQ(queue *Q){
-        return Q->front->sljedeci->pacijent;
+int AddOne(int n) {
+    return((n+1)%10000);
 }
-void enqueueQ(tpacijent x, queue *Q){
-    Q->rear->sljedeci=new telement;
-        Q->rear=Q->rear->sljedeci;
-        Q->rear->sljedeci=NULL;
-        Q->rear->pacijent=x;
+
+int InitQ(tred*red) {
+    osoba*glava=new osoba;
+    glava->sljedeci=NULL;
+    red->front=glava;
+    red->rear=glava;
 }
-void dequeueQ(queue *Q){
-        element pom=Q->front;
-        Q->front=pom->sljedeci;
+
+bool IsEmptyQ(tred*red) {
+    if(red->rear==red->front)return 1;
+    return 0;
+}
+
+osoba*FrontQ(tred*red) {
+    osoba*pacijent;
+    pacijent=red->front->sljedeci;
+    return pacijent;
+}
+
+void EnQueueQ(osoba*pacijent, tred*red) {
+        red->rear->sljedeci=new telement;
+        red->rear=red->rear->sljedeci;
+        red->rear->sljedeci=NULL;
+        red->rear->pacijent=pacijent;
+}
+
+void DeQueueQ(tred*red) {
+        element pom=red->front;
+        red->front=pom->sljedeci;
         delete pom;
-}
-void initQ(queue *Q){
-        Q->front=new telement;
-        Q->rear=Q->front;
-}
-bool IsEmptyQ(queue *Q){
-        return (Q->rear==Q->front)?  1:0;
 }
