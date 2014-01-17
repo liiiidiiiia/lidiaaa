@@ -105,27 +105,32 @@ void brisanje() {
 }
 int br_pom, br_pom2;
 
-void brzi_red(int posto,int pozicija) {
-        if(IsEmptyQ(red))return;
-        osoba*brisanje=new osoba;
-        if(pozicija<posto) {
-                brisanje=FrontQ(red);
-                DeQueueQ(red);
-                pozicija++;
-                memcpy(&pom[br_pom],brisanje,sizeof(osoba));
-                br_pom++;
-                brzi_red(posto,pozicija);
+void red_brzih_usluga(queue *Q){
+    cout<<"U cekaonici:\n---------"<<endl;
+    ispis_svih(Q);
+    cout<<"\n\n";
+        queue *brzi=new queue;
+        initQ(brzi);
+        cout<<"Pustam u brzi red one koji zele podici uputnicu ili recept..."<<endl;
+        pusti_uputnicu_ili_recept(Q,brzi); 
+        cout<<"Prebacujem 30% na zacelju glavnog reda u brzi red..."<<endl;
+        int tridesetposto=(br_el*30)/100;
+        cout<<"Trenutni broj u glavnom redu:"<<br_el<<endl;
+        cout<<"trideset posto je:"<<tridesetposto<<endl;
+        system("pause");
+
+         for(int i=0;i<tridesetposto;i++){
+                enqueueQ(frontQ(Q),brzi);
+                dequeueQ(Q);
+                br_el--;
         }
-        else {
-                while(!IsEmptyQ(red)) {
-                        brisanje=FrontQ(red);
-                        memcpy(&pom2[br_pom2],brisanje,sizeof(osoba));
-                        br_pom2++;
-                        DeQueueQ(red);
-                }
-        }
-        EnQueueQ(brisanje,red);
-}
+        cout<<"Stanje brzog reda:\n---------------------"<<endl;
+        red_prioritet(brzi);
+        ispis_svih(brzi);
+        cout<<"Stanje glavnog reda nakon prebacivanja pacijenata u brzi red :\n-------------------"<<endl;
+        red_obrnuto(Q);
+        ispis_svih(Q);
+        delete brzi;
 
 int main() {
     InitQ(red);
