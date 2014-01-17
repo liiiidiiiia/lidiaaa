@@ -1,264 +1,164 @@
-#include<iostream>
-#include<cstdlib>
-#include<cstring>
-#include<ctime>
+#include <iostream>
+#include <ctime>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 //#include "red_polje.h"
-#include "red_pokazivaci.h"
+#include "red_pokazivac.h"
+
 using namespace std;
-int br_el=0;
-bool provjera(tpacijent &generirani){
-switch (generirani.ci){ 
-        case 1: 
-        if(generirani.ei==1||generirani.di==3||generirani.di==4) return false; 
-        break;
-        case 3: 
-        if(generirani.ei==4) return false; 
-        break;
-        case 4: 
-        if(generirani.ei==4||generirani.ei==5) return false;
-        break;
-}
-return true;
-}
-void generiraj(queue *Q){
-        int broj;
-        cout<<"Koliko uredjenih petorki zelite generirati?"<<endl;
-        cin>>broj;
-        tpacijent novi;
-        for(int i=0;i<broj;i++){
-                do{
-                novi.ai=50+rand()%301;
-                novi.bi=50+rand()%301;
-                novi.ci=1+rand()%5;
-                novi.di=1+rand()%5;
-                novi.ei=1+rand()%5;
-                }while(!provjera(novi));
-                enqueueQ(novi,Q);
-        }        
-}
-void ispis_pacijenta(tpacijent pacijent){
-        cout<<"Ime i prezime:"<<pacijent.ime<<" "<<pacijent.prezime<<endl;
-        cout<<"Datum rodjenja:"<<pacijent.datum.dan<<"."<<pacijent.datum.mjesec<<"."<<pacijent.datum.godina<<endl;
-        cout<<"Spol:"<<pacijent.spol<<endl;
-        cout<<"Prioritet:";
-        if(pacijent.ci==1) cout<<"Hitni slucaj [1]"<<endl;
-        if(pacijent.ci==2) cout<<"Invalidi [2]"<<endl;
-        if(pacijent.ci==3) cout<<"Trudnice [3]"<<endl;
-        if(pacijent.ci==4) cout<<"Djeca mladja od 6 god [4]"<<endl;
-        if(pacijent.ci==5) cout<<"Ostali [5]"<<endl;
-        cout<<"Usluga:";
-        if(pacijent.di==1) cout<<"Pregled [1]"<<endl;
-        if(pacijent.di==2) cout<<"Previjanje [2]"<<endl;
-        if(pacijent.di==3) cout<<"Recepti [3]"<<endl;
-        if(pacijent.di==4) cout<<"Uputnice [4]"<<endl;
-        cout<<"Vrsta ordinacije:";
-        if(pacijent.ei==1) cout<<"Obiteljska medicina [1]"<<endl;
-        if(pacijent.ei==2) cout<<"Oftamologija [2]"<<endl;
-        if(pacijent.ei==3) cout<<"Dermatovenerologija [3]"<<endl;
-        if(pacijent.ei==4) cout<<"Ginekologija [4]"<<endl;
-        if(pacijent.ei==5) cout<<"Urologija [5]"<<endl;
-        cout<<"-------------------------------------------\n"<<endl<<endl;
-}
-void ispis_svih(queue *Q){
-                queue *pomocni= new queue;
-                initQ(pomocni);
-                while(!IsEmptyQ(Q)){
-                enqueueQ(frontQ(Q),pomocni);
-                ispis_pacijenta(frontQ(Q));
-                dequeueQ(Q);
-                }
-                while(!IsEmptyQ(pomocni))  {
-                        enqueueQ(frontQ(pomocni),Q);
-                        dequeueQ(pomocni);
-                }        
+
+int ukupno=0;
+int N;
+osoba*pom, *pom2;
+tred*red=new tred;
+
+char prioritet_pacijenata[5][25]={"hitni slucajevi", "invalidi", "trudnice", "djeca mlada od 6 godina", "ostali pacijenti"};
+char vrsta_usluge[4][15]={"pregled", "previjanje", "recepti", "uputnice"};
+char vrsta_ordinacije[5][25]={"obiteljska medicina", "oftalmologija", "dermatovenerologija", "ginekologija", "urologija"};
+
+osoba*petorka;
+void pacijent() {
+    cout<<"N = ";
+    cin>>N;
+    ukupno=N*3;
+    petorka=new osoba[N];
+    for(int i=0; i<N; i++) {
+        osoba*pacijent=new osoba;
+        petorka[i].ai=rand()%201+50;
+        petorka[i].bi=rand()%201+50;
+        petorka[i].ci=rand()%5+1;
+        petorka[i].di=rand()%4+1;
+        petorka[i].ei=rand()%5+1;
+        if(petorka[i].ci==3&&petorka[i].ei==5)i--;
+        else if(petorka[i].ci==1&&petorka[i].ei==1)i--; 
+    }
 }
 
-void red_prioritet(queue *Q){
-        queue *pomocni=new queue;
-        initQ(pomocni);
-        queue *prioritetni=new queue;
-        initQ(prioritetni);
-        for(int i=1; i<=5; i++) {
-                         while (!IsEmptyQ(Q))
-                         {
-                          if(frontQ(Q).ci == i){
-                                   enqueueQ(frontQ(Q),prioritetni);
-                                   dequeueQ(Q);
-                          }           
-                          else{
-                                  enqueueQ(frontQ(Q),pomocni); 
-                                  dequeueQ(Q);
-                          }  
-                        }
-                        while (!IsEmptyQ(pomocni)) {
-                                enqueueQ(frontQ(pomocni),Q);
-                                dequeueQ(pomocni);
-                        }
-                         
-        }
-        while (!IsEmptyQ(prioritetni))
-                        {
-                                enqueueQ(frontQ(prioritetni),Q);
-                                dequeueQ(prioritetni);
-                        } 
-        delete pomocni;
-        delete prioritetni;        
+void ispis_pacijenata(osoba*pacijent) {
+        cout<<"------------------------"<<endl;
+        cout<<"Ime: "<<pacijent->ime<<endl;
+        cout<<"Prezime: "<<pacijent->prezime<<endl;
+        cout<<"Datum rodenja: "<<pacijent->datum<<endl;
+        cout<<"Spol: "<<pacijent->spol<<endl;
 }
-void unesi_pacijente(queue *generirani, queue *Q){
-        cout<<"Generiranim petorkama pridruzujem ime,prezime,datum i spol pacijenta..."<<endl;
-        tpacijent novi;
-        while(!IsEmptyQ(generirani)){ 
-                novi=frontQ(generirani); 
-                for(int i=0;i<3;i++){        
-            for(int i=0;i<7;i++) novi.ime[i]=rand()%26+97;
-            novi.ime[7]='\0';
-                for(int i=0;i<7;i++) 
-                novi.prezime[i]=rand()%26+97;
-                novi.prezime[7]='\0';                
-                novi.datum.dan=rand()%31+1;        
-                novi.datum.mjesec=rand()%12+1;
-                if(novi.ci==4) //za djecu mladju od 6 godina ide posebni datum
-                        novi.datum.godina=2013-rand()%6;
+
+void dodavanje_zapisa() {
+        osoba*pacijent=new osoba[N*3];
+        int br=0;
+        for(int i=0;i<N;i++) {
+                for(int j=0;j<3;j++) {
+                        cout<<"Unesite podatke za pacijenta:"<<endl; 
+                        cout<<"Prioritet: "<<prioritet_pacijenata[(petorka[i].ci)-1]<<endl;
+                        cout<<"Vrsta usluge: "<<vrsta_usluge[(petorka[i].di)-1]<<endl;
+                        cout<<"Vrsta ordinacije: "<<vrsta_ordinacije[(petorka[i].ei)-1]<<endl;
+                        osoba*pacijent=new osoba;
+                        cout<<"Ime: ";
+                        cin>>pacijent->ime;
+                        cout<<"Prezime: ";
+                        cin>>pacijent->prezime;
+                        cout<<"Datum rodenja: ";
+                        cin>>pacijent->datum;
+                        cout<<"Spol: ";
+                        cin>>pacijent->spol;
+                         pacijent->ai=petorka[i].ai;
+                         pacijent->bi=petorka[i].bi;
+                         pacijent->ci=petorka[i].ci;
+                         pacijent->di=petorka[i].di;
+                         pacijent->ei=petorka[i].ei;
+                         EnQueueQ(pacijent,red);
+                         memcpy(&pacijent[br],pacijent,sizeof(osoba));
+                         br++;
+                }
+        }
+        for(int i=0;i<N*3;i++) {
+                if((pacijent[i].spol=="Z")&&(pacijent[i].ei==2)&&(pacijent[i].datum<19881201))ispis_pacijenata(&pacijent[i]);
+        }
+}
+
+void brisanje() {
+        cout<<"Izbacujem: "<<endl;
+        int br_pom=0;
+        int br_pom2=0;
+        while(!IsEmptyQ(red)) {
+                osoba*pacijent=new osoba;
+                pacijent=FrontQ(red);
+                memcpy(&pom[br_pom],pacijent,sizeof(osoba));
+                br_pom++;                
+                DeQueueQ(red);
+                if(pacijent->datum<19631201&&pacijent->ci==2&&pacijent->ei==1&&pacijent->di==2) {
+                        ispis_pacijenata(pacijent);
+                        ukupno--;
+                }
                 else {
-                if(novi.ci==3)novi.datum.godina=1940+rand()%59;
-            else novi.datum.godina=1940+rand()%67; 
+                        memcpy(&pom2[br_pom2],pacijent,sizeof(osoba));
                 }
-                novi.spol=(rand()%2)? 'm' : 'z';        
-                br_el++;
-                enqueueQ(novi,Q);
-                }
-                dequeueQ(generirani);        
         }
-        cout<<"\n[Simulacija cekaonice [prema prioritetu ulaze pacijenti] ]:\n------------"<<endl;
-        red_prioritet(Q);
-        ispis_svih(Q);
-        cout<<endl;
-        tpacijent tekuci;
-        cout<<"[  Ispis pacijentica starijih od 25 godina koje su posjetile oftamologa  ]:\n-----------"<<endl;
-        for(int i=0;i<br_el;i++){
-                tekuci=frontQ(Q);
-                if(tekuci.datum.godina<1988&&tekuci.ei==2&&tekuci.spol=='z') 
-                ispis_pacijenta(tekuci);
-                enqueueQ(tekuci,Q);        
-                dequeueQ(Q);
-        
+        for(int i=0;i<br_pom2;i++) {
+                ispis_pacijenata(&pom2[i]);
+                EnQueueQ(&pom2[i],red);
+        }
+        cout<<"Stanje reda: "<<endl;
+        for(int i=0;i<br_pom;i++) {
+                ispis_pacijenata(&pom[i]);
         }
 }
-void izbaci(queue *Q){
-  if(IsEmptyQ(Q)){
-          return;
-  }
-  tpacijent tekuci=frontQ(Q);
-  dequeueQ(Q);
-  izbaci(Q);
-  if(tekuci.ci==2&&tekuci.datum.godina<1963&&tekuci.ei==1&&tekuci.di==2){
-          ispis_pacijenta(tekuci);
-          br_el--;
-          return;
-  }
-  enqueueQ(tekuci,Q);
-}
-void red_obrnuto(queue *Q){
-        if(IsEmptyQ(Q)){
-                return;
-        }
-        tpacijent tekuci=frontQ(Q);
-        dequeueQ(Q);
-        red_obrnuto(Q);
-        enqueueQ(tekuci,Q);        
-}
-void pusti_uputnicu_ili_recept(queue *Q, queue *brzi){
-        if(IsEmptyQ(Q)){
-                return;
-        }
-        tpacijent tekuci=frontQ(Q);
-        dequeueQ(Q);
-        pusti_uputnicu_ili_recept(Q,brzi);
-        
-        if(tekuci.di==3||tekuci.di==4)
-                {
-                        enqueueQ(tekuci,brzi);
-                        br_el--;
-                }
-        else enqueueQ(tekuci,Q);                
-        
-}
-void red_brzih_usluga(queue *Q){
-    cout<<"U cekaonici:\n---------"<<endl;
-    ispis_svih(Q);
-    cout<<"\n\n";
-        queue *brzi=new queue;
-        initQ(brzi);
-        cout<<"Pustam u brzi red one koji zele podici uputnicu ili recept..."<<endl;
-        pusti_uputnicu_ili_recept(Q,brzi); 
-        cout<<"Prebacujem 30% na zacelju glavnog reda u brzi red..."<<endl;
-        int tridesetposto=(br_el*30)/100;
-        cout<<"Trenutni broj u glavnom redu:"<<br_el<<endl;
-        cout<<"trideset posto je:"<<tridesetposto<<endl;
-        system("pause");
+int br_pom, br_pom2;
 
-         for(int i=0;i<tridesetposto;i++){
-                enqueueQ(frontQ(Q),brzi);
-                dequeueQ(Q);
-                br_el--;
+void brzi_red(int posto,int pozicija) {
+        if(IsEmptyQ(red))return;
+        osoba*brisanje=new osoba;
+        if(pozicija<posto) {
+                brisanje=FrontQ(red);
+                DeQueueQ(red);
+                pozicija++;
+                memcpy(&pom[br_pom],brisanje,sizeof(osoba));
+                br_pom++;
+                brzi_red(posto,pozicija);
         }
-        cout<<"Stanje brzog reda:\n---------------------"<<endl;
-        red_prioritet(brzi);
-        ispis_svih(brzi);
-        cout<<"Stanje glavnog reda nakon prebacivanja pacijenata u brzi red :\n-------------------"<<endl;
-        red_obrnuto(Q);
-        ispis_svih(Q);
-        delete brzi;
+        else {
+                while(!IsEmptyQ(red)) {
+                        brisanje=FrontQ(red);
+                        memcpy(&pom2[br_pom2],brisanje,sizeof(osoba));
+                        br_pom2++;
+                        DeQueueQ(red);
+                }
+        }
+        EnQueueQ(brisanje,red);
 }
 
-int main(){
-        srand(time(0));
-        rand();
-        queue *Q=new queue;
-        queue *generirani= new queue;
-        initQ(Q);
-        initQ(generirani);
-        int izbor;
-        do{
-                cout<<"[I  Z  B  O  R  N  I  K]"<<endl;
-                cout<<"----------------------------------------------"<<endl;
-                cout<<"1.Generiranje niza N petorki"<<endl;
-                cout<<"2.Upis novih pacjenata u red"<<endl;
-                cout<<"3.Izbacivanje pacijenta: invalid, >50god, previjanje, obiteljska medicina"<<endl;
-                cout<<"4.Simuliranje reda brzih usluga..."<<endl;
-                cout<<"5.Ispis svih"<<endl;
-                cout<<"6.Red obrnuto"<<endl;
-                cout<<"9.Izlaz"<<endl;
-                cout<<"Odaberi opciju:";
-                cin>>izbor;
-                system("cls");
-                switch(izbor)
-                {
-                        case 1:
-                        generiraj(generirani);
-                        break;
-                        case 2:
-                        unesi_pacijente(generirani,Q);
-                        break;
-                        case 3:
-                        cout<<"Izbacujem...."<<endl;
-                        cout<<"Sljedeci pacijenti su izbaceni:\n------------------"<<endl;
-                        izbaci(Q);
-                        red_obrnuto(Q);
-                        break;
-                        case 4:
-                        red_brzih_usluga(Q);
-                        break;
-                        case 5:
-                        ispis_svih(Q);
-                        break;
-                        case 6:
-                        red_obrnuto(Q);
-                        break;
-                        case 9:cout<<"Izlaz!"<<endl;break;
-                        default:cout<<"Pogresan unos!"<<endl;
+int main() {
+    InitQ(red);
+    int izbor;
+    do{
+            pom=new osoba[ukupno];
+            pom2=new osoba[ukupno];
+            cout <<" IZBORNIK "<<endl;
+            cout<<"1.Generiranje brojeva"<<endl;
+            cout<<"2.Dodavanje pacijenata"<<endl;
+            cout<<"3.Brisanje odredenih pacijenata iz reda"<<endl;
+            cout<<"4.Brzi red"<<endl;
+            cout<<"9.Izlaz iz programa"<<endl;
+        cin>>izbor;
+        system("cls");
+        if(izbor==9) break;
+        if(izbor==1) ispis_pacijenata();
+        if(izbor==2) dodavanje_zapisa();
+        if(izbor==3) brisanje();
+        if(izbor==4) {
+                int posto=0.7*ukupno;
+                br_pom=0,br_pom2=0;
+                brzi_red(posto,0);
+                cout<<"Stanje glavnog reda: "<<endl;
+                for(int i=0;i<br_pom;i++) {
+                        ispis_pacijenata(&pom[i]);
                 }
-                
-        }while(izbor!=9);
-        system("pause");
+                cout<<"Stanje brzog reda: "<<endl;
+                for(int i=br_pom2-1;i>=0;i--) {
+                        ispis_pacijenata(&pom2[i]);
+                }
+        }
+    }
+    while(izbor!=9);
+    return 0;
 }
