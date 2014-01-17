@@ -105,47 +105,28 @@ void brisanje() {
 }
 int br_pom, br_pom2;
 
-void pusti_uputnicu_ili_recept(queue *Q, queue *brzi){
-        if(IsEmptyQ(Q)){
-                return;
+void rekurzija_brzi_red(int posto,int pozicija){
+
+        if(IsEmptyQ(red))return;
+        osoba*pomocni=new osoba;
+        if(pozicija<posto){
+                pomocni=FrontQ(red);
+                DeQueueQ(red);
+                pozicija++;
+                memcpy(&pom[br_pom],pomocni,sizeof(osoba));
+                br_pom++;
+                rekurzija(posto,pozicija);
         }
-        tpacijent tekuci=frontQ(Q);
-        dequeueQ(Q);
-        pusti_uputnicu_ili_recept(Q,brzi);
-        
-        if(tekuci.di==3||tekuci.di==4)
-                {
-                        enqueueQ(tekuci,brzi);
-                        br_el--;
+        else{
+                while(!IsEmptyQ(red)){
+                        pomocni=FrontQ(red);
+                        memcpy(&pom2[br_pom2],pomocni,sizeof(osoba));
+                        br_pom2++;
+                        DeQueueQ(red);
                 }
-        else enqueueQ(tekuci,Q);          
-
-void red_brzih_usluga(queue *Q){
-    cout<<"U cekaonici:\n---------"<<endl;
-    ispis_svih(Q);
-    cout<<"\n\n";
-        queue *brzi=new queue;
-        initQ(brzi);
-        cout<<"Pustam u brzi red one koji zele podici uputnicu ili recept..."<<endl;
-        pusti_uputnicu_ili_recept(Q,brzi); 
-        cout<<"Prebacujem 30% na zacelju glavnog reda u brzi red..."<<endl;
-        int tridesetposto=(br_el*30)/100;
-        cout<<"Trenutni broj u glavnom redu:"<<br_el<<endl;
-        cout<<"trideset posto je:"<<tridesetposto<<endl;
-        system("pause");
-
-         for(int i=0;i<tridesetposto;i++){
-                enqueueQ(frontQ(Q),brzi);
-                dequeueQ(Q);
-                br_el--;
         }
-        cout<<"Stanje brzog reda:\n---------------------"<<endl;
-        red_prioritet(brzi);
-        ispis_svih(brzi);
-        cout<<"Stanje glavnog reda nakon prebacivanja pacijenata u brzi red :\n-------------------"<<endl;
-        red_obrnuto(Q);
-        ispis_svih(Q);
-        delete brzi;
+        EnQueueQ(pomocni,red);
+}
 
 int main() {
     InitQ(red);
